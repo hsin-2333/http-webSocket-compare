@@ -25,17 +25,24 @@
       };
 
       document.getElementById("httpButton").addEventListener("click", () => {
+        const startTime = Date.now();
         fetch("/api")
           .then((response) => response.text())
           .then((data) => {
-            output.innerHTML += `<p>${data}</p>`;
+            const latency = Date.now() - startTime;
+            output.innerHTML += `<p>${data} 回應 | 延遲：${latency} ms</p>`;
           })
           .catch((error) => console.error("HTTP 請求錯誤：", error));
       });
 
       document.getElementById("wsButton").addEventListener("click", () => {
         if (ws.readyState === WebSocket.OPEN) {
+          const startTime = Date.now();
           ws.send("來自客戶端的訊息");
+          ws.onmessage = (event) => {
+            const latency = Date.now() - startTime;
+            output.innerHTML += `<p>WebSocket 回應 | 延遲：${latency} ms</p>`;
+          };
         } else {
           console.error("WebSocket 連線尚未建立");
         }
