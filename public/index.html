@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>HTTP vs WebSocket Demo</title>
+  </head>
+  <body>
+    <h1>HTTP 與 WebSocket 比較示例</h1>
+    <button id="httpButton">透過 HTTP 發送請求</button>
+    <button id="wsButton">透過 WebSocket 發送訊息</button>
+    <div id="output"></div>
+
+    <script>
+      const output = document.getElementById("output");
+
+      // 建立 WebSocket 連線
+      const ws = new WebSocket("ws://localhost:3000");
+
+      ws.onopen = () => {
+        console.log("WebSocket 連線已建立");
+      };
+
+      ws.onmessage = (event) => {
+        output.innerHTML += `<p>${event.data}</p>`;
+      };
+
+      document.getElementById("httpButton").addEventListener("click", () => {
+        fetch("/api")
+          .then((response) => response.text())
+          .then((data) => {
+            output.innerHTML += `<p>${data}</p>`;
+          })
+          .catch((error) => console.error("HTTP 請求錯誤：", error));
+      });
+
+      document.getElementById("wsButton").addEventListener("click", () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send("來自客戶端的訊息");
+        } else {
+          console.error("WebSocket 連線尚未建立");
+        }
+      });
+    </script>
+
+    <style>
+      body {
+        margin: 0 auto;
+        height: 100vh;
+        text-align: center;
+      }
+      button {
+        margin-right: 10px;
+      }
+    </style>
+  </body>
+</html>
