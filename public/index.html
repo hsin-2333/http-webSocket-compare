@@ -5,9 +5,13 @@
     <title>HTTP vs WebSocket Demo</title>
   </head>
   <body>
-    <h1>HTTP 與 WebSocket 比較示例</h1>
+    <h1>HTTP 與 WebSocket 比較</h1>
     <button id="httpButton">透過 HTTP 發送請求</button>
     <button id="wsButton">透過 WebSocket 發送訊息</button>
+    <br /><br />
+    <button id="httpStressTestButton">開始 HTTP 壓力測試</button>
+    <button id="wsStressTestButton">開始 WebSocket 壓力測試</button>
+
     <div id="output"></div>
 
     <script>
@@ -45,6 +49,44 @@
           };
         } else {
           console.error("WebSocket 連線尚未建立");
+        }
+      });
+
+      // HTTP 壓力測試
+      document.getElementById("httpStressTestButton").addEventListener("click", async () => {
+        const startTime = Date.now();
+        const requests = 100;
+        let completedRequests = 0;
+
+        for (let i = 0; i < requests; i++) {
+          fetch("/api")
+            .then(() => {
+              completedRequests++;
+              if (completedRequests === requests) {
+                const timeTaken = Date.now() - startTime;
+                output.innerHTML += `<p>HTTP 壓力測試完成，共 ${requests} 次請求，耗時 ${timeTaken} ms</p>`;
+              }
+            })
+            .catch((error) => console.error("HTTP 壓力測試錯誤：", error));
+        }
+      });
+
+      // WebSocket 壓力測試
+      document.getElementById("wsStressTestButton").addEventListener("click", () => {
+        const startTime = Date.now();
+        const requests = 100;
+        let completedRequests = 0;
+
+        ws.onmessage = () => {
+          completedRequests++;
+          if (completedRequests === requests) {
+            const timeTaken = Date.now() - startTime;
+            output.innerHTML += `<p>WebSocket 壓力測試完成，共 ${requests} 次訊息，耗時 ${timeTaken} ms</p>`;
+          }
+        };
+
+        for (let i = 0; i < requests; i++) {
+          ws.send("壓力測試訊息");
         }
       });
     </script>
